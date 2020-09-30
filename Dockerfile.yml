@@ -1,0 +1,18 @@
+FROM python:3.7-slim-stretch
+
+RUN apt-get -qq update --fix-missing && apt-get -qq install -y --no-install-recommends build-essential gcc git curl 
+RUN useradd --no-log-init --uid 1000066642 -g root --home-dir /usr/local/recogender --create-home recogender 
+RUN mkdir -p /usr/local/recogender/config 
+
+RUN apt-get install 'ffmpeg' 'libsm6' 'libxext6' -y
+RUN apt-get install -y libpcre3 libpcre3-dev
+WORKDIR /usr/local/recogender
+
+COPY . ./
+
+RUN chown -R 1000042666 /usr/local/recogender && chmod -R g+rwx /usr/local/recogender && pip install --upgrade pip && pip install -r requirements.txt
+USER recogender
+
+EXPOSE 8080 
+
+CMD [ "uwsgi", "uwsgi_config.ini" ]
