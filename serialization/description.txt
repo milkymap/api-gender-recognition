@@ -1,0 +1,1 @@
+This directory contains the serialized model for predicting the gender 
