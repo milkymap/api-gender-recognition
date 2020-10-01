@@ -1,0 +1,7 @@
+This directory contains 200 images in the sub directory Faces  
+    # 100 images of men
+    # 100 images of women
+
+Each image has the next format : gender_index.jpg 
+The part [gender] is either 0 (Man) or 1 (Woman)
+The second part [index] is just a number between 000 and 099
