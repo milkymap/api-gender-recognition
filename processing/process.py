@@ -36,8 +36,8 @@ if __name__ == '__main__':
         filename, extension = path_head.split('.')
         current_gender = filename[0]  # get gender part | look the description file in source-data
 
-        face_image = cv2.imread(face_path, cv2.IMREAD_GRAYSCALE)
-        resize_face_image = cv2.resize(face_image, (64, 64))
+        face_image = cv2.imread( face_path, cv2.IMREAD_GRAYSCALE )
+        resize_face_image = cv2.resize(face_image, (64, 64) )
 
         current_hog_features = UI.get_hog_features(resize_face_image, hog_descriptor)
         current_dct_features = UI.dct_per_block(resize_face_image)
@@ -53,4 +53,4 @@ if __name__ == '__main__':
         'dct': dct_features_accumulator
     }
 
-    UF.serialize_features(features, path.join(location_to_features_dump, 'features.pkl'), 'wb' ,pickle)
+    UF.serialize_features(features, path.join(location_to_features_dump, 'features.pkl'), 'wb', pickle)
