@@ -115,8 +115,10 @@ class UImage:
     @staticmethod
     def get_gabor_kernel():
         kernel_accumulator = []
-        for sigma in np.linspace(4, 9, 5) * np.sqrt(2):
-            for theta in np.linspace(0, np.pi / 2, 8):
+        sigma_s = [ 2 ** n for n in range(1, 6) ] * np.sqrt(2)
+        theta_s = np.linspace(0, np.pi / 2, 8)
+        for sigma in sigma_s:
+            for theta in theta_s:
                 kernel_accumulator.append(
                     cv2.getGaborKernel(sigma, theha, 1.5, 1.5, np.pi / 2, cv2.CV_32F)
                 )
@@ -166,3 +168,7 @@ class UImage:
             dct_diagonal_components = np.diag(dct_output)
             dct_features_accumulator.append(dct_diagonal_components)
         return np.hstack(dct_features_accumulator)  # a 512 dimensionals features vector 
+    
+    @staticmethod
+    def lbp_features(input_gray_image):  # local binary pattern features   
+        return None 
