@@ -8,21 +8,33 @@ import os
 import os.path as path 
 
 import json 
+import pickle 
 import glob 
 
+import operator as op 
+
 """
-    Ce fichier va servir de definition d'un ensemble de fonction
-    De type utils : 
+    Ce fichier va servir de base pour definition d'un ensemble de fonction
+    De manipulation des : 
+        # Images 
+        # Fichiers 
+        # Models 
 """
 
 class UModel:
     @staticmethod
-    def serialize_model(path_to_storage):
-        return None 
+    def split_source_target(source_target_data, source_pos, target_pos):
+        source_data = list(map(op.itemgetter(source_pos), source_target_data))
+        target_data = list(map(op.itemgetter(target_pos), source_target_data))
+        return source_data, target_data
 
     @staticmethod
-    def deserialize_model(path_to_model):
-        return None 
+    def serialize_model(path_to_storage, model, serializer):
+        serializer.dump(model, path_to_storage)
+
+    @staticmethod
+    def deserialize_model(path_to_model, serializer):
+        return serializer.load(path_to_model)
     
 class UFile:
     @staticmethod
@@ -42,12 +54,14 @@ class UFile:
     def list_files(directory_path):
         return os.listdir(directory_path)
     
-    def serialize_features(features_accumulator, target_file):
-        json.dump(features_accumulator, open(target_file, 'w'))
+    @staticmethod
+    def serialize_features(features_accumulator, target_file, mode ,serializer):
+        serializer.dump(features_accumulator, open(target_file, mode))
     
-    def deserialize_features(target_file_path):
+    @staticmethod
+    def deserialize_features(target_file_path, mode, serializer):
         if path.exists(target_file_path):
-            return json.load(open(target_file_path, 'r'))
+            return serializer.load(open(target_file_path, mode))
         else:
             print('[warning]: this path is not valid')
             return None 
@@ -75,6 +89,10 @@ class UImage:
         cv2.waitKey(0)
 
     @staticmethod
+    def free():
+        cv2.destroyAllWindows()
+
+    @staticmethod
     def resize_image(image, width, height):
         return cv2.resize(image, (width, height), interpolation=cv2.INTER_CUBIC)
 
@@ -92,7 +110,7 @@ class UImage:
     @staticmethod
     def get_hog_features(image, hog_desccriptor):
         hog_features = hog_desccriptor.compute(image)
-        return hog_features
+        return np.ravel(hog_features)
 
     @staticmethod
     def get_gabor_kernel():
@@ -105,8 +123,8 @@ class UImage:
         return kernel_accumulator
 
     @staticmethod
-    def find_faces_roi(face_detector, image, wh_threshold=(24, 24)):
-        min_w, min_h = wh_threshold
+    def find_faces_roi(face_detector, image, width_height_threshold=(24, 24)):
+        min_w, min_h = width_height_threshold
         min_valid_area = min_w * min_h
 
         boxe_coordinates = face_detector.detectMultiScale(image, 1.3, 5)
@@ -129,9 +147,9 @@ class UImage:
     @staticmethod
     def split_image_to_cells(input_gray_image, vertical_split=8, horizontal_split=8):
         # this function expects an image of shape : (64, 64) 
-        # this function is used in order to split the image into several cells 
+        # it is used in order to split the image into several cells 
         # so by default we gonna use the next configuration : (8, 8)
-        vertical_split_outputs = np.vplsit(input_gray_image, vertical_split)
+        vertical_split_outputs = np.vsplit(input_gray_image, vertical_split)
         cells = list(
             it.chain(
                 *[ np.hsplit(sub_array, horizontal_split) for sub_array in vertical_split_outputs ]
@@ -141,7 +159,7 @@ class UImage:
 
     @staticmethod
     def dct_per_block(input_gray_image):
-        cells = UImage.split_image_to_cells(input_gray_image.astype('float32'))+
+        cells = UImage.split_image_to_cells(input_gray_image.astype('float32'))
         dct_features_accumulator = [] 
         for cell in cells: 
             dct_output = cv2.dct(cell)
