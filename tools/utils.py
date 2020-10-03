@@ -120,7 +120,7 @@ class UImage:
         for sigma in sigma_s:
             for theta in theta_s:
                 kernel_accumulator.append(
-                    cv2.getGaborKernel(sigma, theha, 1.5, 1.5, np.pi / 2, cv2.CV_32F)
+                    cv2.getGaborKernel(sigma, theta, 1.5, 1.5, np.pi / 2, cv2.CV_32F)
                 )
         return kernel_accumulator
 

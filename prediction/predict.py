@@ -19,6 +19,8 @@ from tools.utils import UModel as UM
 if __name__ == '__main__':
     print(' ... [prediction] ... ')
 
+    classes = ['HOMME', 'FEMME']
+
     main_window = 'main screen'
     UI.create_window(main_window, 640, 480)
 
@@ -37,10 +39,13 @@ if __name__ == '__main__':
     hog_descriptor = UI.get_hog_descriptor(64, 64)
 
     for image_path in image_paths:
+        print(image_path)
         current_image = UI.read_image(image_path)
         current_gray_image = UI.to_gray(current_image)
         roi_coordinates = UI.find_faces_roi(face_detector, current_gray_image)
-        
+        if roi_coordinates is None:
+            print(' ... [No Face Was Detected For This Image ] ... ') 
+            continue
         UI.draw_faces_on_image(current_image, roi_coordinates)
 
         for coordinates in roi_coordinates:
@@ -57,7 +62,10 @@ if __name__ == '__main__':
                 predictions.append(hog_output)
                 predictions.append(dct_output)
             
-            print(predictions)
+            predictions = np.hstack(predictions)
+            voting = np.bincount(predictions)
+            gender = np.argmax(voting)
+            print( predictions, classes[gender] )
             
         UI.display_image(main_window, current_image)
         UI.pause()
